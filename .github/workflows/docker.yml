@@ -1,0 +1,34 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Get your code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 3: Build Docker Image
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg CACHE_BUST=$(date +%s) \
+            -t ${{ secrets.DOCKER_USERNAME }}/webapp:latest .
+
+      # Step 4: Push Image
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/webapp:latest
